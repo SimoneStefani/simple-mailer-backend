@@ -1,9 +1,8 @@
 package dev.simonestefani.simplemailer.models
 
 import io.ktor.auth.Principal
+import org.jetbrains.exposed.dao.id.IntIdTable
 import java.io.Serializable
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.Table
 
 data class User(
     val id: Int,
@@ -12,8 +11,7 @@ data class User(
     val passwordHash: String
 ) : Serializable, Principal
 
-object Users : Table() {
-    val id : Column<Int> = integer("id").autoIncrement().primaryKey()
+object Users : IntIdTable() {
     val email = varchar("email", 256).uniqueIndex()
     val name = varchar("name", 256)
     val passwordHash = varchar("password_hash", 256)

@@ -13,7 +13,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
-class SimpleMailerRepository : ApplicationRepository {
+class ExposedRepository : ApplicationRepository {
     override suspend fun createUser(email: String, name: String, passwordHash: String): User? {
         var statement: InsertStatement<Number>? = null
 
@@ -56,10 +56,6 @@ class SimpleMailerRepository : ApplicationRepository {
 
     override suspend fun findEmailsBySender(senderId: Int) = asyncQuery {
         Emails.select { Emails.senderId.eq(senderId) }.map { toEmail(it) }
-    }
-
-    override suspend fun findEmail(emailId: Int) = asyncQuery {
-        Emails.select { Emails.id.eq(emailId) }.map { toEmail(it) }.singleOrNull()
     }
 
     private fun toUser(row: ResultRow?): User? {

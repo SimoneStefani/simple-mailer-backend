@@ -3,7 +3,7 @@ package dev.simonestefani.simplemailer.api
 import dev.simonestefani.simplemailer.authentication.JwtService
 import dev.simonestefani.simplemailer.models.User
 import dev.simonestefani.simplemailer.models.serialize
-import dev.simonestefani.simplemailer.persistence.SimpleMailerRepository
+import dev.simonestefani.simplemailer.persistence.ExposedRepository
 import io.ktor.application.application
 import io.ktor.application.call
 import io.ktor.application.log
@@ -17,7 +17,7 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
 
-fun Route.usersRoutes(repo: SimpleMailerRepository, jwtService: JwtService, hashFunction: (String) -> String) {
+fun Route.usersRoutes(repo: ExposedRepository, jwtService: JwtService, hashFunction: (String) -> String) {
     route("/users") {
         post("/register") {
             val params = call.receive<Map<String, String>>()

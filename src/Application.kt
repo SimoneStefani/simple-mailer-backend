@@ -1,10 +1,11 @@
 package dev.simonestefani
 
+import dev.simonestefani.simplemailer.api.emailsRoutes
 import dev.simonestefani.simplemailer.api.usersRoutes
 import dev.simonestefani.simplemailer.authentication.JwtService
 import dev.simonestefani.simplemailer.authentication.hash
 import dev.simonestefani.simplemailer.persistence.DatabaseFactory
-import dev.simonestefani.simplemailer.persistence.SimpleMailerRepository
+import dev.simonestefani.simplemailer.persistence.ExposedRepository
 import io.ktor.application.Application
 import io.ktor.application.install
 import io.ktor.auth.Authentication
@@ -23,7 +24,7 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
     DatabaseFactory.init()
-    val repo = SimpleMailerRepository()
+    val repo = ExposedRepository()
 
     val jwtService = JwtService()
     val hashFunction = { s: String -> hash(s) }
@@ -47,6 +48,7 @@ fun Application.module(testing: Boolean = false) {
     routing {
         route("v1") {
             usersRoutes(repo, jwtService, hashFunction)
+            emailsRoutes(repo)
         }
     }
 }
