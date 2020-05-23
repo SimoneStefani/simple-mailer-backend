@@ -5,6 +5,9 @@ val logback_version: String by project
 plugins {
     application
     kotlin("jvm") version "1.3.70"
+
+    // FatJAR packaging plugin
+    id("com.github.johnrengelman.shadow") version "5.0.0"
 }
 
 group = "dev.simonestefani"
@@ -48,3 +51,11 @@ kotlin.sourceSets["test"].kotlin.srcDirs("test")
 
 sourceSets["main"].resources.srcDirs("resources")
 sourceSets["test"].resources.srcDirs("testresources")
+
+tasks.withType<Jar> {
+    manifest {
+        attributes(
+            mapOf("Main-Class" to application.mainClassName)
+        )
+    }
+}
