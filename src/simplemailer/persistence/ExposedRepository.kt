@@ -5,13 +5,13 @@ import dev.simonestefani.simplemailer.models.Emails
 import dev.simonestefani.simplemailer.models.User
 import dev.simonestefani.simplemailer.models.Users
 import dev.simonestefani.simplemailer.persistence.DatabaseFactory.asyncQuery
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.statements.InsertStatement
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 
 class ExposedRepository : ApplicationRepository {
     override suspend fun createUser(email: String, name: String, passwordHash: String): User? {

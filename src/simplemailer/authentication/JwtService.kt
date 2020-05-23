@@ -4,7 +4,7 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import dev.simonestefani.simplemailer.models.User
-import java.util.*
+import java.util.Date
 
 const val ONE_DAY = 3_600_000 * 24
 

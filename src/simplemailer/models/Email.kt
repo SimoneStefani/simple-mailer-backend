@@ -1,9 +1,9 @@
 package dev.simonestefani.simplemailer.models
 
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.`java-time`.datetime
 import java.io.Serializable
 import java.time.Instant
+import org.jetbrains.exposed.dao.id.IntIdTable
+import org.jetbrains.exposed.sql.`java-time`.datetime
 
 data class Email(
     val id: Int,

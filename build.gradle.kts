@@ -11,6 +11,9 @@ plugins {
 
     // FatJAR packaging plugin
     id("com.github.johnrengelman.shadow") version "5.0.0"
+
+    // Linter
+    id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
 }
 
 group = "dev.simonestefani"

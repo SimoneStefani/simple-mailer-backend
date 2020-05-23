@@ -1,8 +1,8 @@
 package dev.simonestefani.simplemailer.models
 
 import io.ktor.auth.Principal
-import org.jetbrains.exposed.dao.id.IntIdTable
 import java.io.Serializable
+import org.jetbrains.exposed.dao.id.IntIdTable
 
 data class User(
     val id: Int,
