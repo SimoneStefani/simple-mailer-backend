@@ -1,76 +1,52 @@
 package dev.simonestefani
 
-import io.ktor.application.*
-import io.ktor.response.*
-import io.ktor.request.*
-import io.ktor.routing.*
-import io.ktor.http.*
-import io.ktor.locations.*
-import io.ktor.sessions.*
-import io.ktor.auth.*
-import io.ktor.gson.*
-import io.ktor.features.*
+import dev.simonestefani.simplemailer.api.usersRoutes
+import dev.simonestefani.simplemailer.authentication.JwtService
+import dev.simonestefani.simplemailer.authentication.hash
+import dev.simonestefani.simplemailer.persistence.DatabaseFactory
+import dev.simonestefani.simplemailer.persistence.SimpleMailerRepository
+import io.ktor.application.Application
+import io.ktor.application.install
+import io.ktor.auth.Authentication
+import io.ktor.auth.jwt.jwt
+import io.ktor.features.ContentNegotiation
+import io.ktor.features.StatusPages
+import io.ktor.gson.gson
+import io.ktor.routing.route
+import io.ktor.routing.routing
+import io.ktor.util.KtorExperimentalAPI
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
+@KtorExperimentalAPI
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
-    install(Locations) {
-    }
+    DatabaseFactory.init()
+    val repo = SimpleMailerRepository()
 
-    install(Sessions) {
-        cookie<MySession>("MY_SESSION") {
-            cookie.extensions["SameSite"] = "lax"
-        }
-    }
+    val jwtService = JwtService()
+    val hashFunction = { s: String -> hash(s) }
+
+    install(StatusPages)
 
     install(Authentication) {
+        jwt("jwt") {
+            verifier(jwtService.verifier)
+            validate { credential ->
+                val claim = credential.payload.getClaim("id").asInt()
+                repo.findUser(claim)
+            }
+        }
     }
 
     install(ContentNegotiation) {
-        gson {
-        }
+        gson()
     }
 
     routing {
-        get("/") {
-            call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)
-        }
-
-        get<MyLocation> {
-            call.respondText("Location: name=${it.name}, arg1=${it.arg1}, arg2=${it.arg2}")
-        }
-        // Register nested routes
-        get<Type.Edit> {
-            call.respondText("Inside $it")
-        }
-        get<Type.List> {
-            call.respondText("Inside $it")
-        }
-
-        get("/session/increment") {
-            val session = call.sessions.get<MySession>() ?: MySession()
-            call.sessions.set(session.copy(count = session.count + 1))
-            call.respondText("Counter is ${session.count}. Refresh to increment.")
-        }
-
-        get("/json/gson") {
-            call.respond(mapOf("hello" to "world"))
+        route("v1") {
+            usersRoutes(repo, jwtService, hashFunction)
         }
     }
 }
-
-@Location("/location/{name}")
-class MyLocation(val name: String, val arg1: Int = 42, val arg2: String = "default")
-
-@Location("/type/{name}") data class Type(val name: String) {
-    @Location("/edit")
-    data class Edit(val type: Type)
-
-    @Location("/list/{page}")
-    data class List(val type: Type, val page: Int)
-}
-
-data class MySession(val count: Int = 0)
-
