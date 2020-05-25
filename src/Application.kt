@@ -1,11 +1,12 @@
 package dev.simonestefani
 
+import com.commit451.mailgun.Mailgun
 import com.sendgrid.SendGrid
 import dev.simonestefani.simplemailer.api.emailsRoutes
 import dev.simonestefani.simplemailer.api.usersRoutes
 import dev.simonestefani.simplemailer.authentication.JwtService
 import dev.simonestefani.simplemailer.authentication.hash
-import dev.simonestefani.simplemailer.mailer.MailerService
+import dev.simonestefani.simplemailer.mailer.MailgunService
 import dev.simonestefani.simplemailer.mailer.RedundantMailerService
 import dev.simonestefani.simplemailer.mailer.SendGridService
 import dev.simonestefani.simplemailer.persistence.DatabaseFactory
@@ -29,11 +30,16 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 fun Application.module(testing: Boolean = false) {
     DatabaseFactory.init()
 
+    val sendGrid = SendGrid(System.getenv("SENDGRID_API_KEY"))
+    val mailgun = Mailgun
+        .Builder(System.getenv("MAILGUN_DOMAIN"), System.getenv("MAILGUN_API_KEY"))
+        .build()
+
     val repo = ExposedRepository()
     val jwtService = JwtService()
     val mailerService = RedundantMailerService(
-        primaryMailerService = SendGridService(SendGrid(System.getenv("SENDGRID_API_KEY"))),
-        backupMailerService = SendGridService(SendGrid(System.getenv("SENDGRID_API_KEY")))
+        primaryMailerService = MailgunService(mailgun),
+        backupMailerService = SendGridService(sendGrid)
     )
 
     moduleWithDependencies(repo, jwtService, mailerService)

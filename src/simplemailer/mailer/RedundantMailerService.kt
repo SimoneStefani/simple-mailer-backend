@@ -1,9 +1,9 @@
 package dev.simonestefani.simplemailer.mailer
 
 import dev.simonestefani.simplemailer.models.Email
+import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.IOException
 
 class RedundantMailerService(
     private val primaryMailerService: MailerService,

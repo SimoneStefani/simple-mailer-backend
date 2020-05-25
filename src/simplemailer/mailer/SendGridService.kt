@@ -7,7 +7,7 @@ import com.sendgrid.helpers.mail.Mail
 import com.sendgrid.helpers.mail.objects.Content
 import com.sendgrid.helpers.mail.objects.Email
 
-class SendGridService(private val sg: SendGrid): MailerService {
+class SendGridService(private val sg: SendGrid) : MailerService {
     override fun send(email: dev.simonestefani.simplemailer.models.Email) {
         val mail = Mail(
             Email(email.fromEmail),

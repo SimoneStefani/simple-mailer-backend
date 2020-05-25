@@ -29,6 +29,7 @@ repositories {
     mavenLocal()
     jcenter()
     maven { url = uri("https://kotlin.bintray.com/ktor") }
+    maven { url = uri("https://jitpack.io") }
 }
 
 dependencies {
@@ -58,6 +59,7 @@ dependencies {
 
     // Email
     implementation("com.sendgrid:sendgrid-java:4.5.0")
+    implementation("com.github.Commit451:mailgun:1.2.0")
 
     // Logging
     implementation("ch.qos.logback:logback-classic:$logback_version")
