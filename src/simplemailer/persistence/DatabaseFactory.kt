@@ -2,6 +2,7 @@ package dev.simonestefani.simplemailer.persistence
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import dev.simonestefani.simplemailer.models.Emails
 import dev.simonestefani.simplemailer.models.Users
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -16,6 +17,7 @@ object DatabaseFactory {
         // Creates tables if don't exist
         transaction {
             SchemaUtils.create(Users)
+            SchemaUtils.create(Emails)
         }
     }
 

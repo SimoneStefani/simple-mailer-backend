@@ -4,6 +4,8 @@ val logback_version: String by project
 val exposed_version: String by project
 val postgres_version: String by project
 val hikaricp_version: String by project
+val junit_version: String by project
+val mockk_version: String by project
 
 plugins {
     application
@@ -32,6 +34,7 @@ repositories {
 dependencies {
     // BOMs
     implementation(platform("io.ktor:ktor-bom:$ktor_version"))
+    implementation(platform("org.junit:junit-bom:$junit_version"))
 
     // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
@@ -57,7 +60,13 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logback_version")
 
     // Testing
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
     testImplementation("io.ktor:ktor-server-tests")
+    testImplementation("io.ktor:ktor-server-test-host")
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.junit.jupiter:junit-jupiter-params")
+    testImplementation("org.junit.jupiter:junit-jupiter-api")
+    testImplementation("io.mockk:mockk:$mockk_version")
 }
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")
@@ -72,4 +81,15 @@ tasks.withType<Jar> {
             mapOf("Main-Class" to application.mainClassName)
         )
     }
+}
+
+tasks.test {
+    // Enable JUnit 5 (Gradle 4.6+)
+    useJUnitPlatform()
+
+    // Always run tests, even when nothing changed
+    dependsOn("cleanTest")
+
+    // Show test results
+    testLogging { events("passed", "skipped", "failed") }
 }

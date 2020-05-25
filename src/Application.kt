@@ -24,9 +24,15 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
     DatabaseFactory.init()
-    val repo = ExposedRepository()
 
+    val repo = ExposedRepository()
     val jwtService = JwtService()
+
+    moduleWithDependencies(repo, jwtService)
+}
+
+@KtorExperimentalAPI
+fun Application.moduleWithDependencies(repo: ExposedRepository, jwtService: JwtService) {
     val hashFunction = { s: String -> hash(s) }
 
     install(StatusPages)
