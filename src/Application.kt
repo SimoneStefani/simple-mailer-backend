@@ -1,9 +1,13 @@
 package dev.simonestefani
 
+import com.sendgrid.SendGrid
 import dev.simonestefani.simplemailer.api.emailsRoutes
 import dev.simonestefani.simplemailer.api.usersRoutes
 import dev.simonestefani.simplemailer.authentication.JwtService
 import dev.simonestefani.simplemailer.authentication.hash
+import dev.simonestefani.simplemailer.mailer.MailerService
+import dev.simonestefani.simplemailer.mailer.RedundantMailerService
+import dev.simonestefani.simplemailer.mailer.SendGridService
 import dev.simonestefani.simplemailer.persistence.DatabaseFactory
 import dev.simonestefani.simplemailer.persistence.ExposedRepository
 import io.ktor.application.Application
@@ -27,12 +31,20 @@ fun Application.module(testing: Boolean = false) {
 
     val repo = ExposedRepository()
     val jwtService = JwtService()
+    val mailerService = RedundantMailerService(
+        primaryMailerService = SendGridService(SendGrid(System.getenv("SENDGRID_API_KEY"))),
+        backupMailerService = SendGridService(SendGrid(System.getenv("SENDGRID_API_KEY")))
+    )
 
-    moduleWithDependencies(repo, jwtService)
+    moduleWithDependencies(repo, jwtService, mailerService)
 }
 
 @KtorExperimentalAPI
-fun Application.moduleWithDependencies(repo: ExposedRepository, jwtService: JwtService) {
+fun Application.moduleWithDependencies(
+    repo: ExposedRepository,
+    jwtService: JwtService,
+    mailerService: RedundantMailerService
+) {
     val hashFunction = { s: String -> hash(s) }
 
     install(StatusPages)
@@ -54,7 +66,7 @@ fun Application.moduleWithDependencies(repo: ExposedRepository, jwtService: JwtS
     routing {
         route("v1") {
             usersRoutes(repo, jwtService, hashFunction)
-            emailsRoutes(repo)
+            emailsRoutes(repo, mailerService)
         }
     }
 }

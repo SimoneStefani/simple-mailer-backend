@@ -1,5 +1,6 @@
 package dev.simonestefani.simplemailer.api
 
+import dev.simonestefani.simplemailer.mailer.RedundantMailerService
 import dev.simonestefani.simplemailer.models.User
 import dev.simonestefani.simplemailer.models.serialize
 import dev.simonestefani.simplemailer.persistence.ExposedRepository
@@ -13,8 +14,9 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
+import java.io.IOException
 
-fun Route.emailsRoutes(repo: ExposedRepository) {
+fun Route.emailsRoutes(repo: ExposedRepository, mailerService: RedundantMailerService) {
     route("/emails") {
         authenticate("jwt") {
             get {
@@ -34,7 +36,11 @@ fun Route.emailsRoutes(repo: ExposedRepository) {
                 val content = params["content"] ?: return@post call.respond(HttpStatusCode.UnprocessableEntity)
 
                 repo.createEmail(profile, to, subject, content)?.also { newEmail ->
-                    // TODO send email
+                    try {
+                        mailerService.sendAsync(newEmail)
+                    } catch (e: IOException) {
+                        call.respond(HttpStatusCode.InternalServerError)
+                    }
                     call.respond(HttpStatusCode.Created, newEmail.serialize())
                 } ?: call.respond(HttpStatusCode.InternalServerError)
             }
