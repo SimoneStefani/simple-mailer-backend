@@ -5,6 +5,7 @@ import dev.simonestefani.simplemailer.models.Emails
 import dev.simonestefani.simplemailer.models.User
 import dev.simonestefani.simplemailer.models.Users
 import dev.simonestefani.simplemailer.persistence.DatabaseFactory.asyncQuery
+import io.ktor.util.KtorExperimentalAPI
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -14,6 +15,7 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.statements.InsertStatement
 
+@KtorExperimentalAPI
 class ExposedRepository : ApplicationRepository {
     override suspend fun createUser(email: String, name: String, passwordHash: String): User? {
         var statement: InsertStatement<Number>? = null

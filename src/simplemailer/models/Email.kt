@@ -6,6 +6,7 @@ import java.time.format.DateTimeFormatter
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.`java-time`.datetime
 
+// Email entity class
 data class Email(
     val id: Int,
     val senderId: Int,
@@ -17,6 +18,7 @@ data class Email(
     val updatedAt: Instant
 ) : Serializable
 
+// Companion object to Email entity class with DB table mapping
 object Emails : IntIdTable() {
     val senderId = integer("sender_id")
     val fromEmail = varchar("from_email", 256)
@@ -27,6 +29,7 @@ object Emails : IntIdTable() {
     val updatedAt = datetime("updated_at")
 }
 
+// Custom serialization
 fun Email.serialize(): Map<String, Any> {
     return mapOf(
         "id" to id,

@@ -13,6 +13,8 @@ class RedundantMailerService(
         withContext(Dispatchers.IO) { send(email) }
     }
 
+    // Attempt to send email with primary service. In case of exception switch
+    // to secondary service.
     private fun send(email: Email) {
         try {
             primaryMailerService.send(email)

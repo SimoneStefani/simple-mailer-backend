@@ -4,15 +4,18 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import dev.simonestefani.simplemailer.models.User
+import io.ktor.config.ApplicationConfig
+import io.ktor.util.KtorExperimentalAPI
 import java.util.Date
 
 const val ONE_DAY = 3_600_000 * 24
 
-class JwtService {
+@KtorExperimentalAPI
+class JwtService(appConfig: ApplicationConfig) {
 
     private val issuer = "simplemailer"
     private val subject = "Authentication"
-    private val jwtSecret = System.getenv("JWT_SECRET")
+    private val jwtSecret = appConfig.property("ktor.security.jwtSecret").getString()
     private val algorithm = Algorithm.HMAC512(jwtSecret)
 
     val verifier: JWTVerifier = JWT

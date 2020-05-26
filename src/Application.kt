@@ -27,21 +27,35 @@ import io.ktor.routing.routing
 import io.ktor.server.netty.EngineMain
 import io.ktor.util.KtorExperimentalAPI
 
+@KtorExperimentalAPI
+val Application.envKind
+    get() = environment.config.property("ktor.environment").getString()
+
+@KtorExperimentalAPI
+val Application.isDev
+    get() = envKind == "dev"
+
 fun main(args: Array<String>): Unit = EngineMain.main(args)
 
 @KtorExperimentalAPI
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
-    DatabaseFactory.init()
+    // Services configuration from application.conf
+    val sendgridApiKey: String = environment.config.property("ktor.services.sendgridApiKey").getString()
+    val mailgunDomain: String = environment.config.property("ktor.services.mailgunDomain").getString()
+    val mailgunApiKey: String = environment.config.property("ktor.services.mailgunApiKey").getString()
 
-    val sendGrid = SendGrid(System.getenv("SENDGRID_API_KEY"))
-    val mailgun = Mailgun
-        .Builder(System.getenv("MAILGUN_DOMAIN"), System.getenv("MAILGUN_API_KEY"))
-        .build()
-
+    // Initialize connection pool to DB and expose a repository
+    DatabaseFactory.init(environment.config)
     val repo = ExposedRepository()
-    val jwtService = JwtService()
+
+    // Initialize email services
+    val sendGrid = SendGrid(sendgridApiKey)
+    val mailgun = Mailgun.Builder(mailgunDomain, mailgunApiKey).build()
+
+    // Initialize app services
+    val jwtService = JwtService(environment.config)
     val mailerService = RedundantMailerService(
         primaryMailerService = SendGridService(sendGrid),
         backupMailerService = MailgunService(mailgun)
@@ -58,10 +72,13 @@ fun Application.moduleWithDependencies(
 ) {
     val hashFunction = { s: String -> hash(s) }
 
+    // Serve default status pages (e.g. 404)
     install(StatusPages)
 
-    install(CallLogging)
+    // Log calls in dev environment
+    if (isDev) install(CallLogging)
 
+    // Enable CORS
     install(CORS) {
         method(HttpMethod.Options)
         method(HttpMethod.Get)
@@ -74,9 +91,10 @@ fun Application.moduleWithDependencies(
         header(HttpHeaders.ContentLanguage)
         header(HttpHeaders.ContentType)
         header(HttpHeaders.Authorization)
-        anyHost()
+        anyHost() // TODO make more strict
     }
 
+    // Setup authentication provider with JWT schema
     install(Authentication) {
         jwt("jwt") {
             verifier(jwtService.verifier)
@@ -87,9 +105,8 @@ fun Application.moduleWithDependencies(
         }
     }
 
-    install(ContentNegotiation) {
-        gson()
-    }
+    // Use Gson to serialize/deserialize content to/from JSON
+    install(ContentNegotiation) { gson() }
 
     routing {
         route("v1") {

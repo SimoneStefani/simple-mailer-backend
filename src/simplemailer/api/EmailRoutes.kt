@@ -14,27 +14,47 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
+import io.ktor.util.KtorExperimentalAPI
 import java.io.IOException
 
+@KtorExperimentalAPI
 fun Route.emailsRoutes(repo: ExposedRepository, mailerService: RedundantMailerService) {
     route("/emails") {
         authenticate("jwt") {
+            /**
+             * GET /v1/emails
+             *
+             * Get a list with the five most recent emails sent by the authenticated user
+             * @return 200 OK
+             */
             get {
-                val profile: User = call.authentication.principal() ?: return@get call.respond(HttpStatusCode.Unauthorized)
+                // Abort if not authenticated
+                val profile: User =
+                    call.authentication.principal() ?: return@get call.respond(HttpStatusCode.Unauthorized)
 
                 repo.findEmailsBySender(profile.id).let { emails ->
                     call.respond(HttpStatusCode.OK, emails.mapNotNull { it?.serialize() })
                 }
             }
 
+            /**
+             * POST /v1/emails
+             *
+             * Persist a new email in storage and send the message through a mail service
+             * @return 201 Created
+             */
             post {
-                val profile: User = call.authentication.principal() ?: return@post call.respond(HttpStatusCode.Unauthorized)
+                // Abort if not authenticated
+                val profile: User =
+                    call.authentication.principal() ?: return@post call.respond(HttpStatusCode.Unauthorized)
 
+                // Parse and validate request body
                 val params = call.receive<Map<String, String>>()
                 val to = params["to"] ?: return@post call.respond(HttpStatusCode.UnprocessableEntity)
                 val subject = params["subject"] ?: return@post call.respond(HttpStatusCode.UnprocessableEntity)
                 val content = params["content"] ?: return@post call.respond(HttpStatusCode.UnprocessableEntity)
 
+                // Persist email entity and send message
                 repo.createEmail(profile, to, subject, content)?.also { newEmail ->
                     try {
                         mailerService.sendAsync(newEmail)
