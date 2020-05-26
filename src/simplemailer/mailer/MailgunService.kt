@@ -3,6 +3,7 @@ package dev.simonestefani.simplemailer.mailer
 import com.commit451.mailgun.Contact
 import com.commit451.mailgun.Mailgun
 import com.commit451.mailgun.SendMessageRequest
+import java.io.IOException
 
 class MailgunService(private val mg: Mailgun) : MailerService {
     override fun send(email: dev.simonestefani.simplemailer.models.Email) {
@@ -13,6 +14,10 @@ class MailgunService(private val mg: Mailgun) : MailerService {
             .subject(email.subject)
             .text(email.content)
 
-        mg.sendMessage(requestBuilder.build()).blockingGet()
+        val result = mg.sendMessage(requestBuilder.build()).blockingGet()
+
+        if (result.id == null) {
+            throw IOException("Failed to send email to ${email.toEmail} with Mailgun")
+        }
     }
 }

@@ -9,6 +9,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.statements.InsertStatement
@@ -55,7 +56,10 @@ class ExposedRepository : ApplicationRepository {
     }
 
     override suspend fun findEmailsBySender(senderId: Int) = asyncQuery {
-        Emails.select { Emails.senderId.eq(senderId) }.map { toEmail(it) }
+        Emails.select { Emails.senderId.eq(senderId) }
+            .orderBy(Emails.createdAt to SortOrder.DESC)
+            .limit(5)
+            .map { toEmail(it) }
     }
 
     private fun toUser(row: ResultRow?): User? {

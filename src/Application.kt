@@ -15,14 +15,19 @@ import io.ktor.application.Application
 import io.ktor.application.install
 import io.ktor.auth.Authentication
 import io.ktor.auth.jwt.jwt
+import io.ktor.features.CORS
+import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.StatusPages
 import io.ktor.gson.gson
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
 import io.ktor.routing.route
 import io.ktor.routing.routing
+import io.ktor.server.netty.EngineMain
 import io.ktor.util.KtorExperimentalAPI
 
-fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
+fun main(args: Array<String>): Unit = EngineMain.main(args)
 
 @KtorExperimentalAPI
 @Suppress("unused") // Referenced in application.conf
@@ -38,8 +43,8 @@ fun Application.module(testing: Boolean = false) {
     val repo = ExposedRepository()
     val jwtService = JwtService()
     val mailerService = RedundantMailerService(
-        primaryMailerService = MailgunService(mailgun),
-        backupMailerService = SendGridService(sendGrid)
+        primaryMailerService = SendGridService(sendGrid),
+        backupMailerService = MailgunService(mailgun)
     )
 
     moduleWithDependencies(repo, jwtService, mailerService)
@@ -54,6 +59,23 @@ fun Application.moduleWithDependencies(
     val hashFunction = { s: String -> hash(s) }
 
     install(StatusPages)
+
+    install(CallLogging)
+
+    install(CORS) {
+        method(HttpMethod.Options)
+        method(HttpMethod.Get)
+        method(HttpMethod.Post)
+        method(HttpMethod.Head)
+        header(HttpHeaders.AccessControlAllowOrigin)
+        header(HttpHeaders.Origin)
+        header(HttpHeaders.Accept)
+        header(HttpHeaders.AcceptLanguage)
+        header(HttpHeaders.ContentLanguage)
+        header(HttpHeaders.ContentType)
+        header(HttpHeaders.Authorization)
+        anyHost()
+    }
 
     install(Authentication) {
         jwt("jwt") {

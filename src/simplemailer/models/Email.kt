@@ -2,6 +2,7 @@ package dev.simonestefani.simplemailer.models
 
 import java.io.Serializable
 import java.time.Instant
+import java.time.format.DateTimeFormatter
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.`java-time`.datetime
 
@@ -33,6 +34,11 @@ fun Email.serialize(): Map<String, Any> {
         "to" to toEmail,
         "subject" to subject,
         "content" to content,
-        "sent_at" to createdAt
+        "sent_at" to InstantFormatter.format(createdAt)
     )
+}
+
+object InstantFormatter {
+    private val formatter: DateTimeFormatter = DateTimeFormatter.ISO_INSTANT
+    fun format(datetime: Instant): String = formatter.format(datetime)
 }

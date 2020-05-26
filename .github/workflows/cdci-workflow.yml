@@ -27,4 +27,4 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Deploy with Heroku
-        run: git push https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/ktor-test-simonestefani.git HEAD:master -f
+        run: git push https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/simple-mailer-backend.git HEAD:master -f
