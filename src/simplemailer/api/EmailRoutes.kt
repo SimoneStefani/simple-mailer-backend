@@ -28,7 +28,10 @@ fun Route.emailsRoutes(repo: ExposedRepository, mailerService: RedundantMailerSe
              * @return 200 OK
              */
             get {
-                // Abort if not authenticated
+                // Abort if not authenticate
+
+                val pew = call.authentication
+                println(pew)
                 val profile: User =
                     call.authentication.principal() ?: return@get call.respond(HttpStatusCode.Unauthorized)
 
