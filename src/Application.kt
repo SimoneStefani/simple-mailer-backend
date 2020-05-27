@@ -26,6 +26,7 @@ import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.server.netty.EngineMain
 import io.ktor.util.KtorExperimentalAPI
+import io.sentry.Sentry
 
 @KtorExperimentalAPI
 val Application.envKind
@@ -45,6 +46,10 @@ fun Application.module(testing: Boolean = false) {
     val sendgridApiKey: String = environment.config.property("ktor.services.sendgridApiKey").getString()
     val mailgunDomain: String = environment.config.property("ktor.services.mailgunDomain").getString()
     val mailgunApiKey: String = environment.config.property("ktor.services.mailgunApiKey").getString()
+    val sentryDsn: String = environment.config.property("ktor.services.sentryDsn").getString()
+
+    // Error reporting
+    Sentry.init(sentryDsn)
 
     // Initialize connection pool to DB and expose a repository
     DatabaseFactory.init(environment.config)

@@ -6,6 +6,9 @@ val postgres_version: String by project
 val hikaricp_version: String by project
 val junit_version: String by project
 val mockk_version: String by project
+val sendgrid_version: String by project
+val mailgun_version: String by project
+val sentry_version: String by project
 
 plugins {
     application
@@ -58,11 +61,13 @@ dependencies {
     implementation("com.zaxxer:HikariCP:$hikaricp_version")
 
     // Email
-    implementation("com.sendgrid:sendgrid-java:4.5.0")
-    implementation("com.github.Commit451:mailgun:1.2.0")
+    implementation("com.sendgrid:sendgrid-java:$sendgrid_version")
+    implementation("com.github.Commit451:mailgun:$mailgun_version")
 
-    // Logging
+    // Observability
     implementation("ch.qos.logback:logback-classic:$logback_version")
+    implementation("io.sentry:sentry:$sentry_version")
+    implementation("io.sentry:sentry-logback:$sentry_version")
 
     // Testing
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
