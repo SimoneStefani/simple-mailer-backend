@@ -1,9 +1,9 @@
 # SimpleMailer Backend
 
-| Automation                | Status                                                                                                                                        |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| CD/CI Pipeline (`master`) | ![CD/CI Workflow](https://github.com/SimoneStefani/simple-mailer-backend/workflows/CD/CI%20Workflow/badge.svg)                                |
-| Dependency Management     | [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=SimoneStefani/simple-mailer-backend)](https://dependabot.com) |
+| Automation                | Status                                                                                                         |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| CD/CI Pipeline (`master`) | ![CD/CI Workflow](https://github.com/SimoneStefani/simple-mailer-backend/workflows/CD/CI%20Workflow/badge.svg) |
+| Dependency Auditing       | ![Audit Workflow](https://github.com/SimoneStefani/simple-mailer-backend/workflows/Audit%20Workflow/badge.svg) |
 
 ## Table of Contents
 
@@ -52,6 +52,10 @@ The Gradle dependencies are listed in the `build.gradle.kts` while the versions 
 ### Code Style
 
 This project uses [KTLint](https://ktlint.github.io/) in multiple environments and we suggest you to use it also during development. You can run the basic linting task with `./gradlew ktlintFormat` to lint and format eventual issues.
+
+### Security Analysis
+
+This project uses an [auditing tool](https://ossindex.sonatype.org/) which scans the project dependencies for vulnerabilities in published CVE. This security verification is part of the continuous integration pipeline.
 
 ### Continuous Integration
 

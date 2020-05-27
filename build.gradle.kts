@@ -19,6 +19,9 @@ plugins {
 
     // Linter
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
+
+    // Dependency auditing
+    id("net.ossindex.audit") version "0.4.11"
 }
 
 group = "dev.simonestefani"
