@@ -36,6 +36,10 @@ val Application.envKind
 val Application.isDev
     get() = envKind == "dev"
 
+@KtorExperimentalAPI
+val Application.allowUserRegistration
+    get() = environment.config.property("ktor.allowUserRegistration").getString().toBoolean()
+
 fun main(args: Array<String>): Unit = EngineMain.main(args)
 
 @KtorExperimentalAPI
@@ -46,7 +50,7 @@ fun Application.module(testing: Boolean = false) {
     val sendgridApiKey: String = environment.config.property("ktor.services.sendgridApiKey").getString()
     val mailgunDomain: String = environment.config.property("ktor.services.mailgunDomain").getString()
     val mailgunApiKey: String = environment.config.property("ktor.services.mailgunApiKey").getString()
-    val sentryDsn: String = environment.config.property("ktor.services.sentryDsn").getString()
+    val sentryDsn: String? = environment.config.propertyOrNull("ktor.services.sentryDsn")?.getString()
 
     // Error reporting
     Sentry.init(sentryDsn)

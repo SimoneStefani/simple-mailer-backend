@@ -1,5 +1,6 @@
 package dev.simonestefani.simplemailer.api
 
+import dev.simonestefani.allowUserRegistration
 import dev.simonestefani.simplemailer.authentication.JwtService
 import dev.simonestefani.simplemailer.models.User
 import dev.simonestefani.simplemailer.models.serialize
@@ -28,6 +29,10 @@ fun Route.usersRoutes(repo: ExposedRepository, jwtService: JwtService, hashFunct
          * @return 201 Created
          */
         post("/register") {
+            if (!application.allowUserRegistration) {
+                return@post call.respond(HttpStatusCode.Unauthorized)
+            }
+
             // Parse and validate request body
             val params = call.receive<Map<String, String>>()
             val password = params["password"] ?: return@post call.respond(HttpStatusCode.UnprocessableEntity)
